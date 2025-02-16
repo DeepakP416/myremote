@@ -1,0 +1,26 @@
+name: Add Two Numbers
+
+on:
+  workflow_dispatch:
+    inputs:
+      num1:
+        description: "First number"
+        required: true
+        type: number
+      num2:
+        description: "Second number"
+        required: true
+        type: number
+
+jobs:
+  add_numbers:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Add two numbers
+        run: echo "RESULT=$(( ${{ inputs.num1 }} + ${{ inputs.num2 }} ))" >> $GITHUB_ENV
+
+      - name: Display result
+        run: echo "The sum is $RESULT"
