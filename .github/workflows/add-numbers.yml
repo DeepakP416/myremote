@@ -1,26 +1,28 @@
-name: Add Two Numbers
+name: Add Two Numbers on PR Merge
 
 on:
-  workflow_dispatch:
-    inputs:
-      num1:
-        description: "First number"
-        required: true
-        type: number
-      num2:
-        description: "Second number"
-        required: true
-        type: number
+  pull_request:
+    types:
+      - closed
 
 jobs:
   add_numbers:
+    if: github.event.pull_request.merged == true && github.base_ref == 'master'
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Add two numbers
-        run: echo "RESULT=$(( ${{ inputs.num1 }} + ${{ inputs.num2 }} ))" >> $GITHUB_ENV
+      - name: Extract Numbers (Example)
+        run: |
+          NUM1=5  # Replace with dynamic extraction if needed
+          NUM2=10 # Replace with dynamic extraction if needed
+          echo "NUM1=$NUM1" >> $GITHUB_ENV
+          echo "NUM2=$NUM2" >> $GITHUB_ENV
 
-      - name: Display result
+      - name: Add Numbers
+        run: echo "RESULT=$(( $NUM1 + $NUM2 ))" >> $GITHUB_ENV
+
+      - name: Display Result
         run: echo "The sum is $RESULT"
