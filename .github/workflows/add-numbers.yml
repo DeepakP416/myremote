@@ -1,4 +1,4 @@
-name: Add Two Numbers on PR Merge
+name: Add Two Numbers on four.py Merge
 
 on:
   pull_request:
@@ -7,17 +7,33 @@ on:
 
 jobs:
   add_numbers:
-    if: github.event.pull_request.merged == true && github.base_ref == 'master'
+    if: |
+      github.event.pull_request.merged == true &&
+      github.base_ref == 'master'
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Extract Numbers (Example)
+      - name: Check if four.py was modified
+        id: check_file
         run: |
-          NUM1=5  # Replace with dynamic extraction if needed
-          NUM2=10 # Replace with dynamic extraction if needed
+          if git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep -q "^four.py$"; then
+            echo "FILE_CHANGED=true" >> $GITHUB_ENV
+          else
+            echo "FILE_CHANGED=false" >> $GITHUB_ENV
+          fi
+
+      - name: Exit if four.py was not changed
+        if: env.FILE_CHANGED != 'true'
+        run: echo "four.py not changed, skipping job." && exit 0
+
+      - name: Extract Numbers from four.py
+        id: extract_numbers
+        run: |
+          NUM1=$(grep -oP '(?<=NUM1\s*=\s*)\d+' four.py | head -n 1 || echo 0)
+          NUM2=$(grep -oP '(?<=NUM2\s*=\s*)\d+' four.py | head -n 1 || echo 0)
           echo "NUM1=$NUM1" >> $GITHUB_ENV
           echo "NUM2=$NUM2" >> $GITHUB_ENV
 
