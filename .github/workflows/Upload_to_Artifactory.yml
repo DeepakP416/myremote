@@ -1,0 +1,31 @@
+name: Upload to Artifactory
+
+on:
+  push:
+    paths:
+      - "four.py"  # Change this to your specific file
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JFrog CLI
+        run: |
+          curl -fL https://install-cli.jfrog.io | sh
+          export PATH=$PWD/jfrog:$PATH
+
+      - name: Configure JFrog CLI
+        run: |
+          jf c add artifactory-server \
+            --url=${{ secrets.ARTIFACTORY_URL }} \
+            --user=${{ secrets.ARTIFACTORY_USERNAME }} \
+            --password=${{ secrets.ARTIFACTORY_PASSWORD }} \
+            --interactive=false
+
+      - name: Upload file to Artifactory
+        run: |
+          jf rt u "four.py" "https://trialokhk8h.jfrog.io/artifactory/docker-trial/exposures/_uploads/" --flat=true
