@@ -32,13 +32,22 @@ jobs:
       - name: Extract Numbers from four.py
         id: extract_numbers
         run: |
-          NUM1=$(grep -oP '(?<=NUM1\s*=\s*)\d+' four.py | head -n 1 || echo 0)
-          NUM2=$(grep -oP '(?<=NUM2\s*=\s*)\d+' four.py | head -n 1 || echo 0)
-          echo "NUM1=$NUM1" >> $GITHUB_ENV
-          echo "NUM2=$NUM2" >> $GITHUB_ENV
+          NUM1=$(grep -oP '(?<=NUM1\s*=\s*)\d+' four.py | head -n 1 || echo "0")
+          NUM2=$(grep -oP '(?<=NUM2\s*=\s*)\d+' four.py | head -n 1 || echo "0")
+          echo "NUM1=${NUM1:-0}" >> $GITHUB_ENV
+          echo "NUM2=${NUM2:-0}" >> $GITHUB_ENV
+
+      - name: Validate Numbers
+        run: |
+          if ! [[ "$NUM1" =~ ^[0-9]+$ ]] || ! [[ "$NUM2" =~ ^[0-9]+$ ]]; then
+            echo "Error: NUM1 or NUM2 is not a valid number."
+            exit 1
+          fi
 
       - name: Add Numbers
-        run: echo "RESULT=$(( $NUM1 + $NUM2 ))" >> $GITHUB_ENV
+        run: |
+          RESULT=$(( NUM1 + NUM2 ))
+          echo "RESULT=$RESULT" >> $GITHUB_ENV
 
       - name: Display Result
         run: echo "The sum is $RESULT"
